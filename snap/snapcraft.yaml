@@ -131,3 +131,13 @@ parts:
     glue:
         source: glue
         plugin: dump
+
+build-packages:
+    - gettext
+    - intltool
+    - libexpat1-dev
+    - libdaemon-dev
+    - libglib2.0-dev
+    - xmltoman
+    - libdbus-1-dev
+    - libevent-dev
