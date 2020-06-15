@@ -1,0 +1,18 @@
+#!/bin/bash
+
+exec >> ${SNAP_DATA}/hook-$(basename ${0}).log 2>&1
+echo -e "\n$(date '+%Y-%m-%d %H:%M:%S') Entering $(basename ${0}) hook"
+
+mkdir -p ${SNAP_COMMON}/etc
+mkdir -p ${SNAP_COMMON}/var/run
+
+if [ ! -d ${SNAP_COMMON}/etc/avahi ]; then
+    cp -r ${SNAP}/etc/avahi ${SNAP_COMMON}/etc
+fi
+
+# let's try to get model name in attempt to set host-name
+# MODEL_NAME=$(echo -en "GET /v2/assertions/model HTTP/1.0\r\n\r\n" | nc -U /run/snapd.socket | grep -m 1 "model: " | awk '{ print $2}')
+# if [ "x" != "x$MODEL_NAME" ]; then
+#    sed -i '/snappy-model/,+1 d' ${SNAP_COMMON}/etc/avahi/services/ssh.service
+#    sed -i '/<\/service>/ i\    <txt-record>snappy-model='"$MODEL_NAME"'</txt-record>' ${SNAP_COMMON}/etc/avahi/services/ssh.service
+# fi

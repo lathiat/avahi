@@ -1,0 +1,32 @@
+#!/bin/bash
+
+exec >> ${SNAP_DATA}/hook-$(basename ${0}).log 2>&1
+echo -e "\n$(date '+%Y-%m-%d %H:%M:%S') Entering $(basename ${0}) hook"
+
+# read key list
+. $SNAP/bin/config
+
+
+echo -e "Checking curretly defined keys"
+for index in ${!DEFINED_K[*]}; do
+   echo -e "\t${DEFINED_K[${index}]}=${DEFINED_V[${index}]}"
+    key="${DEFINED_K[${index}]}"
+    value="$(snapctl get ${key})"
+    if [ "x$value" != "x" ]; then
+        echo -e "\tupdating existing key: ${key} with ${value}"
+        sed -i "s/.*${key}.*/${key}=${value}/g" $SNAP_COMMON/etc/avahi/avahi-daemon.conf
+    fi
+done
+
+echo -e "Checking keys with no set value:"
+for index in ${!UNDEFINED_K[*]}; do
+    key="${UNDEFINED_K[${index}]}"
+    value="$(snapctl get ${key})"
+    if [ "x$value" != "x" ]; then
+        echo -e "\tupdating undefined key: ${key} with ${value}"
+        sed -i "s/.*${key}.*/${key}=${value}/g" $SNAP_COMMON/etc/avahi/avahi-daemon.conf
+    fi
+done
+
+# restart avahi daemon to make sure changes are applied
+snapctl restart ${SNAP_NAME}
