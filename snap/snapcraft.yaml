@@ -127,3 +127,7 @@ parts:
         stage:
           - -var/snap
 
+    # snap helper scripts
+    glue:
+        source: glue
+        plugin: dump
