@@ -13,4 +13,12 @@ confinement: strict
 grade: stable
 adopt-info: avahi
 
+# expose services folder for other snaps
+slots:
+  services-content:
+    interface: content
+    content: avahi-services
+    write:
+      - $SNAP_COMMON/etc/avahi/services
+
 
