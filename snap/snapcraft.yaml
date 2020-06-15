@@ -77,4 +77,53 @@ apps:
         command: bin/avahi-help
         adapter: none
 
+parts:
+    avahi:
+        plugin: autotools
+        source: https://github.com/lathiat/avahi.git
+        configflags:
+          - --prefix=/usr
+          - --disable-qt3
+          - --disable-qt4
+          - --disable-qt5
+          - --disable-gtk
+          - --disable-gtk3
+          - --disable-gdbm
+          - --disable-python
+          - --disable-pygtk
+          - --disable-python-dbus
+          - --disable-mono
+          - --disable-monodoc
+          - --disable-manpages
+          - --disable-xmltoman
+          - --with-avahi-user=root
+          - --with-avahi-group=root
+          - --with-distro=debian
+          - --disable-gobject
+          - --sysconfdir=/var/snap/${SNAPCRAFT_PROJECT_NAME}/common/etc
+          - --localstatedir=/var
+        stage-packages:
+          - libdaemon0
+          - libevent-2.1-6
+        override-pull: |
+            snapcraftctl pull
+            # decide if to build master or release(tag)
+            last_released_tag="$(snap info avahi | awk '$1 == "latest/beta:" { print $2 }')"
+            last_commited_tag=$(git describe --abbrev=0 --tags)
+            # If the latest tag from the upstream project has not been released to
+            # beta, build that tag instead of master.
+            if [ "${last_commited_tag}" != "${last_released_tag}" ]; then
+                git checkout ${last_commited_tag}
+                snapcraftctl set-version $( echo ${last_commited_tag} | cut -c 2- )
+            else
+                snapcraftctl set-version $(git describe --tags | cut -c 2-)
+            fi
+        override-build: |
+            snapcraftctl build
+            # add tag with txt record os=snappy
+            sed -i '/<\/service>/ i\    <txt-record>os=snappy</txt-record>' $SNAPCRAFT_PART_INSTALL/var/snap/${SNAPCRAFT_PROJECT_NAME}/common/etc/avahi/services/ssh.service
+        organize:
+          var/snap/${SNAPCRAFT_PROJECT_NAME}/common/etc: etc
+        stage:
+          - -var/snap
 
