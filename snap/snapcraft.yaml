@@ -118,6 +118,10 @@ parts:
             else
                 snapcraftctl set-version $(git describe --tags | cut -c 2-)
             fi
+            # apply additional patches if needed
+            if ls ${SNAPCRAFT_PROJECT_DIR}/00*-*.patch 1> /dev/null 2>&1; then
+                git apply ${SNAPCRAFT_PROJECT_DIR}/00*-*.patch
+            fi
         override-build: |
             snapcraftctl build
             # add tag with txt record os=snappy
