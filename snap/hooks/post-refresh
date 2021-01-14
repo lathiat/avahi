@@ -1,7 +1,38 @@
 #!/bin/bash
 
-exec >> ${SNAP_DATA}/hook-$(basename ${0}).log 2>&1
 echo -e "\n$(date '+%Y-%m-%d %H:%M:%S') Entering $(basename ${0}) hook"
 
-# clean old hook logs
-rm ${SNAP_DATA}/hook-*
+
+# if we have ${SNAP_COMMON}/var/run it's been old install and we need to migrate
+if [ -d ${SNAP_COMMON}/var/run ]; then
+  # convert old config to new arrangement
+  # converting old config syntax to new one, there is no easy way to get all the config options
+  # we need to probe them one by one
+  # read key list
+  config_prefix="avahi-daemon-conf"
+  . $SNAP/bin/config
+  echo -e "Checking curretly defined keys"
+  for index in ${!DEFINED_K[*]}; do
+    echo -e "\t${DEFINED_K[${index}]}=${DEFINED_V[${index}]}"
+    key="${DEFINED_K[${index}]}"
+    value="$(snapctl get ${key})"
+    if [ "x$value" != "x" ]; then
+      echo -e "\tPorting key: ${key} with ${value}"
+      snapctl set ${config_prefix}.${key}=${value}
+      snapctl unset ${key}
+    fi
+  done
+
+  echo -e "Checking keys with no set value:"
+  for index in ${!UNDEFINED_K[*]}; do
+    key="${UNDEFINED_K[${index}]}"
+    value="$(snapctl get ${key})"
+    if [ "x$value" != "x" ]; then
+      echo -e "\tPorting key: ${key} with ${value}"
+      snapctl set ${config_prefix}.${key}=${value}
+      snapctl unset ${key}
+    fi
+  done
+  # remove ${SNAP_COMMON}/var/run, we do not use it
+  rm -rf ${SNAP_COMMON}/var
+fi

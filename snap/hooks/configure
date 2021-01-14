@@ -1,32 +1,27 @@
 #!/bin/bash
-
-exec >> ${SNAP_DATA}/hook-$(basename ${0}).log 2>&1
 echo -e "\n$(date '+%Y-%m-%d %H:%M:%S') Entering $(basename ${0}) hook"
 
-# read key list
-. $SNAP/bin/config
+config_file="avahi-daemon.conf"
+# work on temp file, before commition changes back, to reduce number of writes
+cp ${SNAP_COMMON}/etc/avahi/${config_file} /tmp/
 
+process_line() {
+  # each line starts with key name and end variable
+  local key="${1}"
+  local value="${2}"
+  sed -i 's/.*'"${key}"'.*/'"${key}"'='"${value}"'/g' /tmp/${config_file}
+}
 
-echo -e "Checking curretly defined keys"
-for index in ${!DEFINED_K[*]}; do
-   echo -e "\t${DEFINED_K[${index}]}=${DEFINED_V[${index}]}"
-    key="${DEFINED_K[${index}]}"
-    value="$(snapctl get ${key})"
-    if [ "x$value" != "x" ]; then
-        echo -e "\tupdating existing key: ${key} with ${value}"
-        sed -i "s/.*${key}.*/${key}=${value}/g" $SNAP_COMMON/etc/avahi/avahi-daemon.conf
-    fi
-done
+# read values from snap config line by line
+while read line
+do
+  process_line $line
+done < <( snapctl get -d avahi-daemon-conf | jq -r '.[] | to_entries[] | "\(.key) \(.value)"')
 
-echo -e "Checking keys with no set value:"
-for index in ${!UNDEFINED_K[*]}; do
-    key="${UNDEFINED_K[${index}]}"
-    value="$(snapctl get ${key})"
-    if [ "x$value" != "x" ]; then
-        echo -e "\tupdating undefined key: ${key} with ${value}"
-        sed -i "s/.*${key}.*/${key}=${value}/g" $SNAP_COMMON/etc/avahi/avahi-daemon.conf
-    fi
-done
+# we are done, write back config file, only if it has changed
+if ! cmp /tmp/${config_file} ${SNAP_COMMON}/etc/avahi/${config_file}; then
+  echo "Config changed, updating it...."
+  mv /tmp/${config_file} ${SNAP_COMMON}/etc/avahi/
+fi
 
-# restart avahi daemon to make sure changes are applied
-snapctl restart ${SNAP_NAME}
+# no need to restart avahi daemon, it tracks the file and it will reload if needed

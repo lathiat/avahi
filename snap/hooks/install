@@ -1,10 +1,8 @@
 #!/bin/bash
 
-exec >> ${SNAP_DATA}/hook-$(basename ${0}).log 2>&1
 echo -e "\n$(date '+%Y-%m-%d %H:%M:%S') Entering $(basename ${0}) hook"
 
 mkdir -p ${SNAP_COMMON}/etc
-mkdir -p ${SNAP_COMMON}/var/run
 
 if [ ! -d ${SNAP_COMMON}/etc/avahi ]; then
     cp -r ${SNAP}/etc/avahi ${SNAP_COMMON}/etc
