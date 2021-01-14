@@ -1,5 +1,5 @@
 name: avahi
-summary: avahi-daemon 
+summary: avahi-daemon
 description: |
   avahi service daemon
 
@@ -12,6 +12,10 @@ base: core18
 confinement: strict
 grade: stable
 adopt-info: avahi
+
+environment:
+  PATH: $SNAP/usr/bin:$PATH
+  LD_LIBRARY_PATH: $SNAP/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}:$SNAP/usr/lib
 
 # expose services folder for other snaps
 slots:
@@ -135,6 +139,9 @@ parts:
     glue:
         source: glue
         plugin: dump
+        stage-packages:
+          - jq
+          - libjq1
 
 build-packages:
     - gettext
