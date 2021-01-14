@@ -5,7 +5,7 @@ echo -e "avahi snap help"
 
 # parse config file for supported settings keys
 echo -e "avahi supports settings keys:"
-echo -e "values can be changed by calling\n$ snap set avahi <key name>='<key value>'"
+echo -e "values can be changed by calling\n$ snap set avahi avahi-daemon-conf.<key name>='<key value>'"
 
 echo -e "Curretly defined keys:"
 for index in ${!DEFINED_K[*]}; do
