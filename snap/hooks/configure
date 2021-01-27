@@ -1,5 +1,7 @@
 #!/bin/bash
-echo -e "\n$(date '+%Y-%m-%d %H:%M:%S') Entering $(basename ${0}) hook"
+
+hook_name="$(basename ${0})"
+logger "avahi.${hook_name}: Entering the hook"
 
 config_file="avahi-daemon.conf"
 # work on temp file, before commition changes back, to reduce number of writes
@@ -20,8 +22,8 @@ done < <( snapctl get -d avahi-daemon-conf | jq -r '.[] | to_entries[] | "\(.key
 
 # we are done, write back config file, only if it has changed
 if ! cmp /tmp/${config_file} ${SNAP_COMMON}/etc/avahi/${config_file}; then
-  echo "Config changed, updating it...."
+  logger "avahi.${hook_name}: ${config_file} changed, updating it...."
   mv /tmp/${config_file} ${SNAP_COMMON}/etc/avahi/
 fi
 
-# no need to restart avahi daemon, it tracks the file and it will reload if needed
+# no need to restart avahi-daemon, it tracks the changes in the config file
