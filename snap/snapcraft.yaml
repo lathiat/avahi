@@ -8,7 +8,7 @@ description: |
 
   Copyright 2004-2015 by the Avahi developers.
 
-base: core18
+base: core20
 confinement: strict
 grade: stable
 adopt-info: avahi
@@ -85,7 +85,7 @@ parts:
     avahi:
         plugin: autotools
         source: https://github.com/lathiat/avahi.git
-        configflags:
+        autotools-configure-parameters:
           - --prefix=/usr
           - --disable-qt3
           - --disable-qt4
@@ -108,7 +108,7 @@ parts:
           - --localstatedir=/var
         stage-packages:
           - libdaemon0
-          - libevent-2.1-6
+          - libevent-2.1-7
         override-pull: |
             snapcraftctl pull
             # decide if to build master or release(tag)
