@@ -17,6 +17,11 @@ environment:
   PATH: $SNAP/usr/bin:$PATH
   LD_LIBRARY_PATH: $SNAP/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}:$SNAP/usr/lib
 
+architectures:
+    - build-on: armhf
+    - build-on: arm64
+    - build-on: amd64
+
 # expose services folder for other snaps
 slots:
   services-content:
