@@ -220,7 +220,7 @@ int main (AVAHI_GCC_UNUSED int argc, AVAHI_GCC_UNUSED char *argv[]) {
     const char *ret;
     int error;
     uint32_t cookie;
-    struct timeval tv;
+    struct AvahiTimeVal tv;
     AvahiAddress a;
 
     simple_poll = avahi_simple_poll_new();

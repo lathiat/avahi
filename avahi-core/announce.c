@@ -49,7 +49,7 @@ static void remove_announcer(AvahiServer *s, AvahiAnnouncer *a) {
 
 static void elapse_announce(AvahiTimeEvent *e, void *userdata);
 
-static void set_timeout(AvahiAnnouncer *a, const struct timeval *tv) {
+static void set_timeout(AvahiAnnouncer *a, const struct AvahiTimeVal *tv) {
     assert(a);
 
     if (!tv) {
@@ -99,7 +99,7 @@ void avahi_s_entry_group_check_probed(AvahiSEntryGroup *g, int immediately) {
                 a->n_iteration = 1;
                 next_state(a);
             } else {
-                struct timeval tv;
+                struct AvahiTimeVal tv;
                 a->n_iteration = 0;
                 avahi_elapse_time(&tv, 0, AVAHI_ANNOUNCEMENT_JITTER_MSEC);
                 set_timeout(a, &tv);
@@ -137,7 +137,7 @@ static void next_state(AvahiAnnouncer *a) {
             set_timeout(a, NULL);
             next_state(a);
         } else {
-            struct timeval tv;
+            struct AvahiTimeVal tv;
 
             avahi_interface_post_probe(a->interface, a->entry->record, 0);
 
@@ -164,7 +164,7 @@ static void next_state(AvahiAnnouncer *a) {
 
             set_timeout(a, NULL);
         } else {
-            struct timeval tv;
+            struct AvahiTimeVal tv;
             avahi_elapse_time(&tv, a->sec_delay*1000, AVAHI_ANNOUNCEMENT_JITTER_MSEC);
 
             if (a->n_iteration < 10)
@@ -197,7 +197,7 @@ static AvahiAnnouncer *get_announcer(AvahiServer *s, AvahiEntry *e, AvahiInterfa
 
 static void go_to_initial_state(AvahiAnnouncer *a) {
     AvahiEntry *e;
-    struct timeval tv;
+    struct AvahiTimeVal tv;
 
     assert(a);
     e = a->entry;
@@ -416,7 +416,7 @@ static void send_goodbye_callback(AvahiInterfaceMonitor *m, AvahiInterface *i, v
 
 static void reannounce(AvahiAnnouncer *a) {
     AvahiEntry *e;
-    struct timeval tv;
+    struct AvahiTimeVal tv;
 
     assert(a);
     e = a->entry;
