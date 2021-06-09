@@ -309,6 +309,11 @@ typedef enum {
     AVAHI_DOMAIN_BROWSER_MAX
 } AvahiDomainBrowserType;
 
+/** Flags for reconfirming a record */
+typedef enum {
+    AVAHI_RECONFIRM_RECORD_NOFLAGS = 0      /**< Placeholder for future changes */
+} AvahiReconfirmRecordFlags;
+
 /** @} */
 
 /** \cond fulldocs */
