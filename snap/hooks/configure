@@ -24,6 +24,7 @@ done < <( snapctl get -d avahi-daemon-conf | jq -r '.[] | to_entries[] | "\(.key
 if ! cmp /tmp/${config_file} ${SNAP_COMMON}/etc/avahi/${config_file}; then
   logger "avahi.${hook_name}: ${config_file} changed, updating it...."
   mv /tmp/${config_file} ${SNAP_COMMON}/etc/avahi/
+  snapctl restart ${SNAP_INSTANCE_NAME}.daemon
 fi
 
 # no need to restart avahi-daemon, it tracks the changes in the config file
