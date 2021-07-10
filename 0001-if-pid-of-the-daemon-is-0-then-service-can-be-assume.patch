@@ -1,0 +1,27 @@
+From 0e1018502d92925cf7945558340b36364f2c3b4b Mon Sep 17 00:00:00 2001
+From: Ondrej Kubik <ondrej.kubik@canonical.com>
+Date: Fri, 19 May 2017 12:21:31 +0000
+Subject: [PATCH] if pid of the daemon is 0, then service can be assumed not
+ running, as this means pid file has no sensible data
+
+Signed-off-by: Ondrej Kubik <ondrej.kubik@canonical.com>
+---
+ avahi-daemon/main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/avahi-daemon/main.c b/avahi-daemon/main.c
+index 10cb41e..2069b71 100644
+--- a/avahi-daemon/main.c
++++ b/avahi-daemon/main.c
+@@ -1587,7 +1587,7 @@ int main(int argc, char *argv[]) {
+             goto finish;
+         }
+ 
+-        if ((pid = daemon_pid_file_is_running()) >= 0) {
++        if ((pid = daemon_pid_file_is_running()) > 0) {
+             avahi_log_error("Daemon already running on PID %u", pid);
+             goto finish;
+         }
+-- 
+2.17.1
+

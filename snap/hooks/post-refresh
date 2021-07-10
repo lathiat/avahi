@@ -1,0 +1,38 @@
+#!/bin/bash
+
+hook_name="$(basename ${0})"
+logger "avahi.${hook_name}: Entering the hook"
+
+# if we have ${SNAP_COMMON}/var/run it's been old install and we need to migrate
+if [ -d ${SNAP_COMMON}/var/run ]; then
+  # convert old config to new arrangement
+  # converting old config syntax to new one, there is no easy way to get all the config options
+  # we need to probe them one by one
+  # read key list
+  config_prefix="avahi-daemon-conf"
+  . $SNAP/bin/config
+  logger "avahi.${hook_name}: Checking curretly defined keys"
+  for index in ${!DEFINED_K[*]}; do
+    echo -e "\t${DEFINED_K[${index}]}=${DEFINED_V[${index}]}"
+    key="${DEFINED_K[${index}]}"
+    value="$(snapctl get ${key})"
+    if [ "x$value" != "x" ]; then
+      logger "avahi.${hook_name}: Porting key: ${key} with ${value}"
+      snapctl set ${config_prefix}.${key}=${value}
+      snapctl unset ${key}
+    fi
+  done
+
+  logger "avahi.${hook_name}: Checking keys with no set value"
+  for index in ${!UNDEFINED_K[*]}; do
+    key="${UNDEFINED_K[${index}]}"
+    value="$(snapctl get ${key})"
+    if [ "x$value" != "x" ]; then
+      logger "avahi.${hook_name}: Porting key: ${key} with ${value}"
+      snapctl set ${config_prefix}.${key}=${value}
+      snapctl unset ${key}
+    fi
+  done
+  # remove ${SNAP_COMMON}/var/run, we do not use it
+  rm -rf ${SNAP_COMMON}/var
+fi
